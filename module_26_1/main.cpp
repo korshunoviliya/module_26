@@ -11,7 +11,7 @@ private:
     std::tm *dateCreation;
 
 public:
-    Track setPlayList(std::string str, std::time_t value) {
+    static Track setPlayList(std::string const &str, std::time_t const &value) {
         Track temp;
         temp.title = str;
         temp.recordingDuration = value;
@@ -20,15 +20,15 @@ public:
         temp.dateCreation = local;
         return temp;
     }
-    void showInfo(Track &track) {
-        std::cout  << track.title << "\n"
-                   << std::asctime(track.dateCreation)
-                   << track.recordingDuration << "\n\n";
+    static void showInfo(Track &track) {
+        std::cout  << "Track name: " << track.title << std::endl
+                   << "Date of creation: " << std::asctime(track.dateCreation)
+                   << "Play time: " << track.recordingDuration << "\n";
     }
     std::string getTitle(){
         return title;
     }
-    void addTrack(std::vector<Track> &track){
+    static void addTrack(std::vector<Track> &track){
         std::cout << "Enter the title new track:";
         std::string str;
         std::cin >> str;
@@ -46,21 +46,24 @@ private:
 
 public:
     void play(std::vector<Track> &track) {
+        if(track.empty()) return;
         if (!isPlay) {
             std::string titleTrack;
             std::cout << "Enter the title of the track: ";
             std::cin >> titleTrack;
-            for (int i = 0; i < track.size(); ++i) {
-                if (titleTrack == track[i].getTitle()) {
-                    track[i].showInfo(track[i]);
+            for (auto & i : track) {
+                if (titleTrack == i.getTitle()) {
+                    Track::showInfo(i);
                     isPlay = true;
+                    return;
                 }
             }
+            std::cout << "Couldn't find a track with this name\n";
         }
     }
     void pause(){
         if(isPlay){
-            std::cout << "Pause\n";
+            std::cout << "Pause ON\n";
             isPlay = false;
         }
     }
@@ -70,7 +73,7 @@ public:
         isPlay = true;
     }
     void stop(){
-        if(isPlay) std::cout << "Stop!\n";
+        if(isPlay) std::cout << "Playback is stopped\n";
         isPlay = false;
     }
 };
