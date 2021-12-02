@@ -9,7 +9,8 @@ private:
     std::string name;
     std::string number;
 
-    static bool validationNumber(std::string &str){
+public:
+    bool validationNumber(std::string &str){
         if((str.size() != 12) || (str[0] != '+') || (str[1] != '7')) return false;
         for (int i = 2; i < str.size(); ++i){
             if (!isdigit(str[i])) return false;
@@ -17,27 +18,42 @@ private:
         return true;
     }
 
-    friend class Telephone;
+    std::string getNumber(){
+        return number;
+    }
+
+    std::string getName(){
+        return name;
+    }
+
+    void setNumber(std::string &str){
+        number = str;
+    }
+
+    void setName(std::string &str){
+        name = str;
+    }
 };
 
 class Telephone {
 private:
     PhoneBook temp;
-    std::vector<PhoneBook> phoneBook;
+    std::string tempNumber;
+    std::string tempName;
 
-    int contactRequest() {
+    int contactRequest(std::vector<PhoneBook> &phoneBook) {
         std::string tempInput;
         std::cout << "Enter the name or number contact: ";
         std::cin >> tempInput;
-        if (PhoneBook::validationNumber(tempInput)) {
+        if (temp.validationNumber(tempInput)) {
             for (int i = 0; i < phoneBook.size(); ++i) {
-                if (tempInput == phoneBook[i].number) {
+                if (tempInput == phoneBook[i].getNumber()) {
                     return i;
                 }
             }
         } else {
             for (int i = 0; i < phoneBook.size(); ++i) {
-                if (tempInput == phoneBook[i].name) {
+                if (tempInput == phoneBook[i].getName()) {
                     return i;
                 }
             }
@@ -47,51 +63,56 @@ private:
     }
 
 public:
-    void add() {
+    void add(std::vector<PhoneBook> &phoneBook) {
         do {
             std::cout << "Enter contact name:";
-            std::cin >> temp.name;
-            std::cout << "Enter the " << temp.name << "'s phone number:";
-            std::cin >> temp.number;
-            if (PhoneBook::validationNumber(temp.number)) {
+            std::cin >> tempName;
+            temp.setName(tempName);
+            std::cout << "Enter the " << tempName << "'s phone number:";
+            std::cin >> tempNumber;
+            temp.setNumber(tempNumber);
+
+            if (temp.validationNumber(tempNumber)) {
                 phoneBook.push_back(temp);
+
                 return;
             } else std::cout << "The phone number was entered incorrectly! Try again!\n";
         } while (true);
     }
 
-    void call(){
-        int tempCall = contactRequest();
+    void call(std::vector<PhoneBook> &phoneBook){
+        int tempCall = contactRequest(phoneBook);
         if (tempCall != ERROR){
             std::cout << "*****CALL!!!*****\n";
-            std::cout << phoneBook[tempCall].number << std::endl;
+            std::cout << phoneBook[tempCall].getNumber() << std::endl;
         }
     }
 
-    void sms(){
-        int tempSms = contactRequest();
+    void sms(std::vector<PhoneBook> &phoneBook){
+        int tempSms = contactRequest(phoneBook);
         std::string message;
         if (tempSms != ERROR){
             std::cout << "Enter SMS message: ";
             std::getline(std::cin,message);
             std::cin.ignore(32767, '\n');
             std::cout << "SMS message has been sent to the number "
-                << phoneBook[tempSms].number << std::endl;
+                << phoneBook[tempSms].getNumber() << std::endl;
         }
     }
 };
 
 int main() {
-    PhoneBook phonebook;
     Telephone telephone;
+    static std::vector<PhoneBook> phoneBook;
 
     std::string command;
     while (true){
         std::cout << "Enter the command add, call, sms or exit: ";
         std::cin >> command;
-        if (command == "add") telephone.add();
-        else if (command == "call") telephone.call();
-        else if (command == "sms") telephone.sms();
+        if (command == "add") telephone.add(phoneBook);
+        else if (command == "call") telephone.call(phoneBook);
+        else if (command == "sms") telephone.sms(phoneBook);
         else if (command == "exit") return 0;
+        else std::cout << "Input is not correct! Try again!!!\n";
     }
 }
