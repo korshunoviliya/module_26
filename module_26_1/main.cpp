@@ -2,7 +2,6 @@
 #include <string>
 #include <ctime>
 #include <vector>
-#include <cstdlib>
 
 class Track {
 private:
@@ -11,7 +10,7 @@ private:
     std::tm *dateCreation;
 
 public:
-    static Track setPlayList(std::string const &str, std::time_t const &value) {
+    Track setPlayList(std::string const &str, std::time_t const &value) {
         Track temp;
         temp.title = str;
         temp.recordingDuration = value;
@@ -20,40 +19,46 @@ public:
         temp.dateCreation = local;
         return temp;
     }
-    static void showInfo(Track &track) {
-        std::cout  << "Track name: " << track.title << std::endl
-                   << "Date of creation: " << std::asctime(track.dateCreation)
-                   << "Play time: " << track.recordingDuration << "\n";
-    }
+
     std::string getTitle(){
         return title;
     }
-    static void addTrack(std::vector<Track> &track){
-        std::cout << "Enter the title new track:";
-        std::string str;
-        std::cin >> str;
-        std::cout << "Enter recording duration:";
-        int value;
-        std::cin >> value;
-        Track temp = setPlayList(str, value);
-        track.push_back(temp);
+    std::time_t getRecordingDuration(){
+        return recordingDuration;
     }
+    tm* getDateCreation(){
+        return dateCreation;
+    }
+
 };
 
 class Player{
 private:
     bool isPlay{false};
+    bool isPause{false};
+
+    void showInfo(Track &track) {
+        std::cout  << "Track name: " << track.getTitle() << std::endl
+                   << "Date of creation: " << std::asctime(track.getDateCreation())
+                   << "Play time: " << track.getRecordingDuration() << "\n";
+    }
 
 public:
     void play(std::vector<Track> &track) {
         if(track.empty()) return;
+        if (isPause) {
+            std::cout << "Pause OFF\n";
+            std::cout << "Track playback resumed\n";
+            isPause = false;
+            return;
+        }
         if (!isPlay) {
             std::string titleTrack;
             std::cout << "Enter the title of the track: ";
             std::cin >> titleTrack;
-            for (auto & i : track) {
-                if (titleTrack == i.getTitle()) {
-                    Track::showInfo(i);
+            for (int i = 0; i < track.size(); ++i) {
+                if (titleTrack == track[i].getTitle()) {
+                    showInfo(track[i]);
                     isPlay = true;
                     return;
                 }
@@ -61,17 +66,33 @@ public:
             std::cout << "Couldn't find a track with this name\n";
         }
     }
-    void pause(){
+
+    void addTrack(std::vector<Track> &track){
+        std::cout << "Enter the title new track:";
+        std::string str;
+        std::cin >> str;
+        std::cout << "Enter recording duration:";
+        int value;
+        std::cin >> value;
+        Track temp = temp.setPlayList(str, value);
+        track.push_back(temp);
+    }
+
+    void pause(std::vector<Track> &track){
+        if (isPause) play(track);
         if(isPlay){
             std::cout << "Pause ON\n";
             isPlay = false;
+            isPause = true;
         }
     }
+
     void next(std::vector<Track> &track){
         int randomTrack = std::rand() % track.size();
-        track[randomTrack].showInfo(track[randomTrack]);
+        showInfo(track[randomTrack]);
         isPlay = true;
     }
+
     void stop(){
         if(isPlay) std::cout << "Playback is stopped\n";
         isPlay = false;
@@ -80,12 +101,12 @@ public:
 
 int main() {
     std::vector<Track> track;
-
-    track.push_back(track[0].setPlayList("a", 10));
-    track.push_back(track[1].setPlayList("b", 15));
-    track.push_back(track[2].setPlayList("c", 20));
-    track.push_back(track[3].setPlayList("d", 25));
-    track.push_back(track[4].setPlayList("e", 30));
+    Track temp;
+    track.push_back(temp.setPlayList("a", 10));
+    track.push_back(temp.setPlayList("b", 15));
+    track.push_back(temp.setPlayList("c", 20));
+    track.push_back(temp.setPlayList("d", 25));
+    track.push_back(temp.setPlayList("e", 30));
 
     Player player;
 
@@ -94,8 +115,8 @@ int main() {
         std::cout << "Enter the command: ";
         std::cin >> command;
         if (command == "play") player.play(track);
-        else if (command == "add") track[track.size()].addTrack(track);
-        else if (command == "pause") player.pause();
+        else if (command == "add") player.addTrack(track);
+        else if (command == "pause") player.pause(track);
         else if (command == "next") player.next(track);
         else if (command == "stop") player.stop();
         else if (command == "exit") return 0;
