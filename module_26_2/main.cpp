@@ -4,13 +4,13 @@
 
 #define ERROR -1
 
-class PhoneBook{
+class Contact{
 private:
     std::string name;
     std::string number;
 
 public:
-    bool validationNumber(std::string &str){
+    static bool validationNumber(std::string &str){
         if((str.size() != 12) || (str[0] != '+') || (str[1] != '7')) return false;
         for (int i = 2; i < str.size(); ++i){
             if (!isdigit(str[i])) return false;
@@ -37,23 +37,21 @@ public:
 
 class Telephone {
 private:
-    PhoneBook temp;
-    std::string tempNumber;
-    std::string tempName;
+    std::vector<Contact> contact;
 
-    int contactRequest(std::vector<PhoneBook> &phoneBook) {
+    int contactRequest() {
         std::string tempInput;
         std::cout << "Enter the name or number contact: ";
         std::cin >> tempInput;
-        if (temp.validationNumber(tempInput)) {
-            for (int i = 0; i < phoneBook.size(); ++i) {
-                if (tempInput == phoneBook[i].getNumber()) {
+        if (Contact::validationNumber(tempInput)) {
+            for (int i = 0; i < contact.size(); ++i) {
+                if (tempInput == contact[i].getNumber()) {
                     return i;
                 }
             }
         } else {
-            for (int i = 0; i < phoneBook.size(); ++i) {
-                if (tempInput == phoneBook[i].getName()) {
+            for (int i = 0; i < contact.size(); ++i) {
+                if (tempInput == contact[i].getName()) {
                     return i;
                 }
             }
@@ -63,7 +61,10 @@ private:
     }
 
 public:
-    void add(std::vector<PhoneBook> &phoneBook) {
+    void add() {
+        Contact temp;
+        std::string tempNumber;
+        std::string tempName;
         do {
             std::cout << "Enter contact name:";
             std::cin >> tempName;
@@ -72,46 +73,43 @@ public:
             std::cin >> tempNumber;
             temp.setNumber(tempNumber);
 
-            if (temp.validationNumber(tempNumber)) {
-                phoneBook.push_back(temp);
-
+            if (Contact::validationNumber(tempNumber)) {
+                contact.push_back(temp);
                 return;
             } else std::cout << "The phone number was entered incorrectly! Try again!\n";
         } while (true);
     }
 
-    void call(std::vector<PhoneBook> &phoneBook){
-        int tempCall = contactRequest(phoneBook);
+    void call(){
+        int tempCall = contactRequest();
         if (tempCall != ERROR){
             std::cout << "*****CALL!!!*****\n";
-            std::cout << phoneBook[tempCall].getNumber() << std::endl;
+            std::cout << contact[tempCall].getNumber() << std::endl;
         }
     }
 
-    void sms(std::vector<PhoneBook> &phoneBook){
-        int tempSms = contactRequest(phoneBook);
+    void sms(){
+        int tempSms = contactRequest();
         std::string message;
         if (tempSms != ERROR){
             std::cout << "Enter SMS message: ";
             std::getline(std::cin,message);
             std::cin.ignore(32767, '\n');
             std::cout << "SMS message has been sent to the number "
-                << phoneBook[tempSms].getNumber() << std::endl;
+                      << contact[tempSms].getNumber() << std::endl;
         }
     }
 };
 
 int main() {
     Telephone telephone;
-    static std::vector<PhoneBook> phoneBook;
-
     std::string command;
     while (true){
         std::cout << "Enter the command add, call, sms or exit: ";
         std::cin >> command;
-        if (command == "add") telephone.add(phoneBook);
-        else if (command == "call") telephone.call(phoneBook);
-        else if (command == "sms") telephone.sms(phoneBook);
+        if (command == "add") telephone.add();
+        else if (command == "call") telephone.call();
+        else if (command == "sms") telephone.sms();
         else if (command == "exit") return 0;
         else std::cout << "Input is not correct! Try again!!!\n";
     }
