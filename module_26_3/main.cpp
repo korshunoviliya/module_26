@@ -4,8 +4,8 @@
 class Window;
 
 class Screen {
-    const int maxWidth = 25;
-    const int maxHeight = 25;
+    const int maxWidth = 80;
+    const int maxHeight = 50;
 public:
     void display(Window &window);
 
