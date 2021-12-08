@@ -23,11 +23,11 @@ class Window{
     int height{10};
 
     bool checkInput() const{
-        Screen screen;
-        if (coordinateX < 0 || (coordinateX + width) > screen.getMaxWidth() ||
-            coordinateY < 0 || (coordinateY + height) > screen.getMaxHeight() ||
+        Screen tempScreen;
+        if (coordinateX < 0 || (coordinateX + width) > tempScreen.getMaxWidth() ||
+            coordinateY < 0 || (coordinateY + height) > tempScreen.getMaxHeight() ||
             width < 0 || height < 0) {
-            std::cerr << "Input is incorrect!\n";
+            std::cout << "Input is incorrect!\n";
             return false;
         }else return true;
     }
@@ -64,7 +64,7 @@ public:
         }
         std::cout << "Window coordinates.\n" <<
                      "X:" << coordinateX <<
-                     "Y:" << coordinateY << std::endl;
+                     " Y:" << coordinateY << std::endl;
     }
     void resize(){
         int tempWidth = width;
@@ -80,7 +80,7 @@ public:
         }
         std::cout << "Window size.\n" <<
                   "Width:" << width <<
-                  "Height:" << height << std::endl;
+                  " Height:" << height << std::endl;
     }
 };
 
@@ -98,19 +98,21 @@ void Screen::display(Window &window){
 }
 
 int main() {
-    Window window;
-    Screen screen;
+    Window *window = new Window;
+    Screen *screen = new Screen;
     std::string command;
     do{
         std::cout << "Enter the command: ";
         std::cin >> command;
-        if (command == "move") window.move();
-        else if (command == "resize") window.resize();
-        else if (command == "display") screen.display(window);
+        if (command == "move") window->move();
+        else if (command == "resize") window->resize();
+        else if (command == "display") screen->display(*window);
         else if (command == "close") {
             std::cout << "The window closed\n";
+            delete window;
+            delete screen;
             return 0;
         }
-        else std::cerr << "Command is error! Try again!!!\n";
+        else std::cout << "Command is error! Try again!!!\n";
     }while(true);
 }
