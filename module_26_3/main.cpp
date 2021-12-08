@@ -1,9 +1,21 @@
 #include <iostream>
 #include <string>
 
-#define MAX_WIDTH 80
-#define MAX_HEIGHT 50
+class Window;
 
+class Screen {
+    const int maxWidth = 25;
+    const int maxHeight = 25;
+public:
+    void display(Window &window);
+
+    int getMaxWidth(){
+        return maxWidth;
+    }
+    int getMaxHeight(){
+        return maxHeight;
+    }
+};
 class Window{
     int coordinateX{0};
     int coordinateY{0};
@@ -11,15 +23,33 @@ class Window{
     int height{10};
 
     bool checkInput() const{
-        if (coordinateX < 0 || (coordinateX + width) > MAX_WIDTH ||
-            coordinateY < 0 || (coordinateY + height) > MAX_HEIGHT ||
+        Screen screen;
+        if (coordinateX < 0 || (coordinateX + width) > screen.getMaxWidth() ||
+            coordinateY < 0 || (coordinateY + height) > screen.getMaxHeight() ||
             width < 0 || height < 0) {
-            std::cout << "Input is incorrect!\n";
+            std::cerr << "Input is incorrect!\n";
             return false;
         }else return true;
     }
 
 public:
+
+    int getCoordinateX() {
+        return coordinateX;
+    }
+
+    int getCoordinateY() {
+        return coordinateY;
+    }
+
+    int getWidth() {
+        return width;
+    }
+
+    int getHeight() {
+        return height;
+    }
+
     void move() {
         int tempX = coordinateX;
         int tempY = coordinateY;
@@ -52,28 +82,35 @@ public:
                   "Width:" << width <<
                   "Height:" << height << std::endl;
     }
-    void display() const{
-        std::cout << std::endl;
-        for (int i = 0; i < MAX_HEIGHT; ++i){
-            for (int j = 0; j < MAX_WIDTH; ++j){
-                if (j >= coordinateX && j < (coordinateX + width)
-                    && i >= coordinateY && i < (coordinateY + height)) std::cout << "*";
-                else std::cout << "0";
-            }
-            std::cout << std::endl;
-        }
-    }
 };
+
+void Screen::display(Window &window){
+    std::cout << std::endl;
+    for (int i = 0; i < maxHeight; ++i){
+        for (int j = 0; j < maxWidth; ++j){
+            if (j >= window.getCoordinateX() && j < (window.getCoordinateX() +
+                window.getWidth()) && i >= window.getCoordinateY() &&
+                i < (window.getCoordinateY() + window.getHeight())) std::cout << "*";
+            else std::cout << "0";
+        }
+        std::cout << std::endl;
+    }
+}
+
 int main() {
     Window window;
+    Screen screen;
     std::string command;
     do{
         std::cout << "Enter the command: ";
         std::cin >> command;
         if (command == "move") window.move();
         else if (command == "resize") window.resize();
-        else if (command == "display") window.display();
-        else if (command == "close") return 0;
-        else std::cout << "Command is error! Try again!!!\n";
+        else if (command == "display") screen.display(window);
+        else if (command == "close") {
+            std::cout << "The window closed\n";
+            return 0;
+        }
+        else std::cerr << "Command is error! Try again!!!\n";
     }while(true);
 }
